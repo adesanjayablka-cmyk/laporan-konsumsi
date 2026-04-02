@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Konsumsi Harian</title>
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Segoe UI',Arial,sans-serif;background:#eef2f7;padding:12px;color:#1a1a2e}
+        
+        /* FORM */
+        #formSection{max-width:640px;margin:0 auto;background:#fff;border-radius:16px;padding:24px;box-shadow:0 2px 12px rgba(0,0,0,.08)}
+        .form-title{text-align:center;font-size:18px;font-weight:700;color:#1e40af;margin-bottom:20px;line-height:1.4}
+        .form-group{margin-bottom:14px}
+        .form-group>label{display:block;font-size:13px;font-weight:600;color:#475569;margin-bottom:5px}
+        .input{width:100%;padding:10px 12px;border:1.5px solid #cbd5e1;border-radius:8px;font-size:14px;color:#1e293b;background:#f8fafc;transition:all .2s;font-family:inherit}
+        .input:focus{outline:none;border-color:#3b82f6;background:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.15)}
+        textarea.input{min-height:70px;resize:vertical}
+        .section-label{font-size:14px;font-weight:700;color:#1e40af;margin:20px 0 10px;padding:8px 0;border-bottom:2px solid #e2e8f0}
+        
+        .prog-row{display:flex;gap:6px;margin-bottom:6px;align-items:center}
+        .prog-row .input{padding:8px 10px;font-size:13px}
+        .prog-row .input:first-child{flex:1}
+        .prog-row .input:nth-child(2){width:70px;text-align:center;flex:none}
+        .prog-row .unit{font-size:12px;color:#64748b;white-space:nowrap}
+        
+        .btn{display:inline-flex;align-items:center;gap:4px;padding:7px 14px;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;font-family:inherit}
+        .btn:active{transform:scale(.97)}
+        .btn-add{background:#dbeafe;color:#1e40af}
+        .btn-del{background:#fee2e2;color:#991b1b;font-size:15px;padding:4px 9px;line-height:1}
+        .btn-tpl{background:#e2e8f0;color:#334155}
+        .btn-print-lg{background:#1e40af;color:#fff;padding:10px 24px;font-size:14px;border-radius:8px}
+        .btn-back-lg{background:#64748b;color:#fff;padding:10px 24px;font-size:14px;border-radius:8px}
+        .btn-sheets{background:#16a34a;color:#fff;padding:10px 24px;font-size:14px;border-radius:8px}
+        
+        .submit-btn{display:block;width:100%;padding:14px;margin-top:24px;background:linear-gradient(135deg,#1e40af,#3b82f6);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;font-family:inherit}
+        .submit-btn:hover{box-shadow:0 4px 15px rgba(30,64,175,.3)}
+        .submit-btn:disabled{opacity:.6;cursor:wait}
+        
+        .img-grid{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+        .img-grid img{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0}
+        .file-area{border:2px dashed #cbd5e1;border-radius:8px;padding:16px;text-align:center;background:#f8fafc;cursor:pointer;transition:all .2s}
+        .file-area:hover{border-color:#3b82f6;background:#eff6ff}
+        .file-area input{font-size:13px}
+        .file-area p{font-size:12px;color:#94a3b8;margin-top:4px}
+        .tpl-row{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+        
+        /* REPORT */
+        #reportSection{display:none}
+        .rpt-actions{max-width:700px;margin:0 auto 12px;display:flex;justify-content:center;flex-wrap:wrap;gap:8px}
+        .rpt{max-width:700px;margin:0 auto;background:#fff;padding:20px 24px;border:1px solid #d1d5db;font-family:'Times New Roman',Times,serif;font-size:11pt;color:#000;line-height:1.5}
+        .rpt-title{text-align:center;font-weight:bold;font-size:13pt;color:#cc0000;margin-bottom:14px;text-transform:uppercase;font-family:Arial,sans-serif}
+        .rpt table{width:100%}
+        .rpt-info td{padding:2px 0;font-family:Arial,sans-serif;font-size:10pt}
+        .rpt-info .lbl{font-weight:bold;white-space:nowrap;width:80px}
+        .rpt-info .sep{padding:0 6px;width:10px}
+        .rpt-main{border-collapse:collapse;border:1.5px solid #555;margin:10px 0}
+        .rpt-main td{border:1.5px solid #555;padding:10px;vertical-align:top}
+        .rpt-menu-imgs{text-align:center}
+        .rpt-menu-imgs img{max-width:200px;max-height:160px;display:inline-block;margin:4px;border-radius:4px}
+        .rpt-prog-tbl{font-family:Arial,sans-serif;font-size:10pt}
+        .rpt-prog-tbl td{padding:2px 4px}
+        .rpt-prog-tbl .num{text-align:right;white-space:nowrap;padding-left:12px}
+        .rpt-prog-tbl .tot td{border-top:2px solid #000;font-weight:bold;padding-top:6px}
+        .rpt-recv-imgs{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+        .rpt-recv-imgs img{max-width:200px;max-height:170px;border-radius:4px}
+        .rpt-footer{margin-top:16px;font-size:8pt;color:#999;text-align:right;border-top:1px solid #eee;padding-top:6px;font-family:Arial,sans-serif}
+        .rpt-summary{font-family:Arial,sans-serif;font-size:10pt}
+        .rpt-summary td{padding:2px 0}
+        .rpt-summary .lbl{font-weight:bold;width:70px}
+        .rpt-summary .sep{width:10px;padding:0 6px}
+        
+        /* LOADING OVERLAY */
+        .loading-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:9999;justify-content:center;align-items:center}
+        .loading-overlay.show{display:flex}
+        .loading-box{background:#fff;padding:30px 40px;border-radius:12px;text-align:center}
+        .loading-box .spinner{width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#3b82f6;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+        
+        /* PRINT */
+        @media print{
+            @page{margin:10mm}
+            body{background:#fff;padding:0}
+            .no-print{display:none!important}
+            #reportSection{display:block!important}
+            .rpt{max-width:none;border:none;padding:0;box-shadow:none}
+            .rpt-menu-imgs img{max-width:180px;max-height:140px}
+            .rpt-recv-imgs img{max-width:180px;max-height:150px}
+        }
+        
+        /* MOBILE */
+        @media(max-width:480px){
+            body{padding:6px}
+            #formSection{padding:16px;border-radius:12px}
+            .prog-row{flex-wrap:wrap}
+            .prog-row .input:first-child{width:100%;flex:none}
+            .rpt{padding:12px;font-size:10pt}
+            .rpt-menu-imgs img{max-width:140px;max-height:120px}
+            .rpt-recv-imgs img{max-width:140px;max-height:120px}
+            .rpt-title{font-size:11pt}
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-box">
+        <div class="spinner"></div>
+        <div>Memproses foto...</div>
+        <div style="font-size:12px;color:#64748b;margin-top:4px">Mohon tunggu sebentar</div>
+    </div>
+</div>
+
+<!-- ==================== FORM ==================== -->
+<div id="formSection">
+    <div class="form-title">📋 Form Laporan Penyerahan<br>Konsumsi Makan Siang Harian</div>
+
+    <form id="theForm" onsubmit="return handleSubmit(event)">
+
+        <div class="form-group">
+            <label>📌 Judul Laporan</label>
+            <input class="input" id="fJudul" type="text"
+                placeholder="Contoh: MENU PROGRAM 200 JAM PELATIHAN PBL BATCH III 2025" required>
+        </div>
+
+        <div class="form-group">
+            <label>📅 Tanggal Penyerahan</label>
+            <input class="input" id="fTanggal" type="date" required>
+        </div>
+
+        <!-- MENU -->
+        <div class="section-label">🍱 Foto & Daftar Menu</div>
+
+        <div class="form-group">
+            <label>Upload Foto Menu Makanan</label>
+            <div class="file-area">
+                <input type="file" id="fMenuFoto" accept="image/*" multiple>
+                <p>📷 Pilih foto atau langsung ambil dari kamera</p>
+            </div>
+            <div class="img-grid" id="prevMenu"></div>
+        </div>
+
+        <div class="form-group">
+            <label>Daftar Menu (ketik satu item per baris)</label>
+            <textarea class="input" id="fMenuList"
+                placeholder="Nasi&#10;Ayam Kremes&#10;Kari Labu&#10;Sambal Cabe Ijo&#10;Kerupuk" required></textarea>
+        </div>
+
+        <!-- PROGRAM -->
+        <div class="section-label">📦 Jumlah Paket Per Program Pelatihan</div>
+
+        <div class="tpl-row">
+            <button type="button" class="btn btn-tpl" onclick="saveTpl()">💾 Simpan Template</button>
+            <button type="button" class="btn btn-tpl" onclick="loadTpl()">📂 Muat Template</button>
+            <button type="button" class="btn btn-tpl" onclick="clearTpl()">🗑️ Hapus Template</button>
+        </div>
+
+        <div id="progBox"></div>
+        <button type="button" class="btn btn-add" onclick="addProg()" style="margin-top:8px">
+            + Tambah Program
+        </button>
+
+        <!-- BUKTI PENYERAHAN -->
+        <div class="section-label">📸 Foto Bukti Penyerahan</div>
+
+        <div class="form-group">
+            <label>Upload Foto Saat Menyerahkan ke Peserta</label>
+            <div class="file-area">
+                <input type="file" id="fDelivFoto" accept="image/*" multiple>
+                <p>📷 Foto saat menyerahkan makanan kepada peserta/perwakilan kelas</p>
+            </div>
+            <div class="img-grid" id="prevDeliv"></div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="btnSubmit">📄 Buat Laporan</button>
+    </form>
+</div>
+
+<!-- ==================== REPORT ==================== -->
+<div id="reportSection">
+    <div class="rpt-actions no-print">
+        <button class="btn btn-print-lg" onclick="window.print()">🖨️ Print / Simpan PDF</button>
+        <button class="btn btn-back-lg" onclick="goBack()">← Kembali ke Form</button>
+        <button class="btn btn-sheets" onclick="saveToSheets()" id="btnSheets" style="display:none">
+            ☁️ Simpan ke Sheets
+        </button>
+    </div>
+    <div class="rpt" id="rptContent"></div>
+</div>
+
+<script>
+/* ================================================================
+   KONFIGURASI
+   ================================================================ */
+// Isi URL Google Apps Script di sini jika ingin backup ke Google Sheets
+// Kosongkan '' jika tidak pakai
+const APPS_SCRIPT_URL = '';
+
+/* ================================================================
+   INISIALISASI
+   ================================================================ */
+(function init(){
+    document.getElementById('fTanggal').valueAsDate = new Date();
+    var sj = localStorage.getItem('_judul');
+    if(sj) document.getElementById('fJudul').value = sj;
+    if(localStorage.getItem('_tpl')){
+        loadTpl();
+    } else {
+        addProg(); addProg(); addProg();
+    }
+    imgPrev('fMenuFoto','prevMenu');
+    imgPrev('fDelivFoto','prevDeliv');
+    if(APPS_SCRIPT_URL) document.getElementById('btnSheets').style.display='';
+})();
+
+/* ================================================================
+   PREVIEW GAMBAR
+   ================================================================ */
+function imgPrev(inputId, prevId){
+    document.getElementById(inputId).onchange = function(){
+        var box = document.getElementById(prevId);
+        box.innerHTML = '';
+        var files = this.files;
+        for(var i = 0; i < files.length; i++){
+            (function(f){
+                var r = new FileReader();
+                r.onload = function(e){
+                    var img = document.createElement('img');
+                    img.src = e.target.result;
+                    box.appendChild(img);
+                };
+                r.readAsDataURL(f);
+            })(files[i]);
+        }
+    };
+}
+
+/* ================================================================
+   PROGRAM ROWS
+   ================================================================ */
+function addProg(name, qty){
+    var d = document.createElement('div');
+    d.className = 'prog-row';
+    d.innerHTML =
+        '<input class="input" type="text" placeholder="Nama Program Pelatihan" value="'+(name||'')+'">' +
+        '<input class="input" type="number" placeholder="0" value="'+(qty||'')+'" min="0">' +
+        '<span class="unit">box</span>' +
+        '<button type="button" class="btn btn-del" onclick="delProg(this)">×</button>';
+    document.getElementById('progBox').appendChild(d);
+}
+
+function delProg(btn){
+    if(document.querySelectorAll('.prog-row').length > 1) btn.parentElement.remove();
+}
+
+function getProgs(){
+    var arr = [];
+    var rows = document.querySelectorAll('.prog-row');
+    for(var i = 0; i < rows.length; i++){
+        var inputs = rows[i].querySelectorAll('.input');
+        var n = inputs[0].value.trim();
+        var q = parseInt(inputs[1].value) || 0;
+        if(n && q > 0) arr.push({name:n, qty:q});
+    }
+    return arr;
+}
+
+/* ================================================================
+   TEMPLATE
+   ================================================================ */
+function saveTpl(){
+    var list = [];
+    var rows = document.querySelectorAll('.prog-row');
+    for(var i = 0; i < rows.length; i++){
+        var inputs = rows[i].querySelectorAll('.input');
+        var n = inputs[0].value.trim();
+        var q = parseInt(inputs[1].value) || 0;
+        if(n) list.push({name:n, qty:q});
+    }
+    if(!list.length){ alert('Tidak ada program untuk disimpan.'); return; }
+    localStorage.setItem('_tpl', JSON.stringify(list));
+    localStorage.setItem('_judul', document.getElementById('fJudul').value);
+    alert('Template dan judul berhasil disimpan!\nAkan otomatis dimuat saat membuka halaman.');
+}
+
+function loadTpl(){
+    var s = localStorage.getItem('_tpl');
+    if(!s){ alert('Belum ada template tersimpan.'); return; }
+    var list = JSON.parse(s);
+    document.getElementById('progBox').innerHTML = '';
+    for(var i = 0; i < list.length; i++){
+        addProg(list[i].name, list[i].qty);
+    }
+}
+
+function clearTpl(){
+    if(confirm('Hapus template yang tersimpan?')){
+        localStorage.removeItem('_tpl');
+        localStorage.removeItem('_judul');
+        alert('Template dihapus.');
+    }
+}
+
+/* ================================================================
+   BACA & KOMPRES GAMBAR
+   ================================================================ */
+function readImgs(input){
+    return new Promise(function(resolve){
+        if(!input.files.length) return resolve([]);
+        var out = [];
+        var done = 0;
+        var total = input.files.length;
+        for(var i = 0; i < total; i++){
+            (function(f){
+                var r = new FileReader();
+                r.onload = function(e){
+                    compress(e.target.result, 1200).then(function(url){
+                        out.push(url);
+                        done++;
+                        if(done === total) resolve(out);
+                    });
+                };
+                r.readAsDataURL(f);
+            })(input.files[i]);
+        }
+    });
+}
+
+function compress(dataUrl, maxW){
+    return new Promise(function(resolve){
+        var img = new Image();
+        img.onload = function(){
+            var w = img.width, h = img.height;
+            if(w > maxW){ h = h * maxW / w; w = maxW; }
+            var c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            c.getContext('2d').drawImage(img, 0, 0, w, h);
+            resolve(c.toDataURL('image/jpeg', 0.75));
+        };
+        img.src = dataUrl;
+    });
+}
+
+/* ================================================================
+   FORMAT TANGGAL
+   ================================================================ */
+function fmtDateShort(s){
+    var d = new Date(s);
+    var b = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return d.getDate() + '-' + b[d.getMonth()] + '-' + d.getFullYear();
+}
+
+/* ================================================================
+   SUBMIT → GENERATE LAPORAN
+   ================================================================ */
+function handleSubmit(e){
+    e.preventDefault();
+
+    var judul = document.getElementById('fJudul').value.trim();
+    var tgl   = document.getElementById('fTanggal').value;
+    var menu  = document.getElementById('fMenuList').value.trim();
+    var progs = getProgs();
+
+    if(!progs.length){
+        alert('Mohon isi minimal 1 program dengan jumlah > 0.');
+        return false;
+    }
+
+    document.getElementById('loadingOverlay').classList.add('show');
+    var btn = document.getElementById('btnSubmit');
+    btn.disabled = true;
+
+    var menuInput  = document.getElementById('fMenuFoto');
+    var delivInput = document.getElementById('fDelivFoto');
+
+    Promise.all([readImgs(menuInput), readImgs(delivInput)])
+    .then(function(results){
+        var menuImgs  = results[0];
+        var delivImgs = results[1];
+
+        var totalBox = 0;
+        var qtyMap = {};
+        for(var i = 0; i < progs.length; i++){
+            totalBox += progs[i].qty;
+            qtyMap[progs[i].qty] = (qtyMap[progs[i].qty]||0) + 1;
+        }
+
+        buildReport(judul, tgl, menu, progs, menuImgs, delivImgs, qtyMap, totalBox);
+
+        window._lastData = { judul:judul, tanggal:tgl, menu:menu, programs:progs, totalBox:totalBox };
+
+        document.getElementById('loadingOverlay').classList.remove('show');
+        document.getElementById('formSection').style.display = 'none';
+        document.getElementById('reportSection').style.display = 'block';
+        window.scrollTo(0,0);
+    })
+    .catch(function(err){
+        document.getElementById('loadingOverlay').classList.remove('show');
+        alert('Error: ' + err.message);
+    });
+
+    btn.disabled = false;
+    return false;
+}
+
+/* ================================================================
+   BUILD REPORT
+   ================================================================ */
+function buildReport(judul, tgl, menu, progs, menuImgs, delivImgs, qtyMap, totalBox){
+    var menuItems = menu.split('\n').filter(function(x){ return x.trim(); });
+
+    var progRows = '';
+    for(var i = 0; i < progs.length; i++){
+        progRows += '<tr><td>' + progs[i].name + '</td>' +
+            '<td class="num">' + progs[i].qty + ' box</td></tr>';
+    }
+
+    var keys = Object.keys(qtyMap).sort(function(a,b){ return parseInt(b)-parseInt(a); });
+    var summary = '';
+    for(var k = 0; k < keys.length; k++){
+        if(k > 0) summary += '<br>';
+        summary += keys[k] + ' x ' + qtyMap[keys[k]] + ' Paket';
+    }
+
+    var mImgs = '';
+    if(menuImgs.length){
+        for(var i = 0; i < menuImgs.length; i++) mImgs += '<img src="'+menuImgs[i]+'">';
+    } else {
+        mImgs = '<em style="color:#888">Tidak ada foto</em>';
+    }
+
+    var dImgs = '';
+    if(delivImgs.length){
+        for(var i = 0; i < delivImgs.length; i++) dImgs += '<img src="'+delivImgs[i]+'">';
+    } else {
+        dImgs = '<em style="color:#888">Tidak ada foto</em>';
+    }
+
+    var now = new Date();
+    var timestamp = now.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})
+        + ' ' + now.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});
+
+    document.getElementById('rptContent').innerHTML =
+        '<div class="rpt-title">' + judul + '</div>' +
+
+        '<table class="rpt-info"><tr>' +
+            '<td class="lbl">Tanggal</td><td class="sep">:</td>' +
+            '<td>' + fmtDateShort(tgl) + '</td>' +
+        '</tr></table>' +
+
+        '<table class="rpt-main"><tr>' +
+            '<td style="width:50%"><div class="rpt-menu-imgs">' + mImgs + '</div></td>' +
+            '<td>' +
+                '<div style="font-weight:bold;margin-bottom:8px;font-family:Arial,sans-serif;font-size:10pt">Jumlah</div>' +
+                '<table class="rpt-prog-tbl">' + progRows +
+                    '<tr class="tot"><td>Total</td><td class="num">' + totalBox + ' box</td></tr>' +
+                '</table>' +
+            '</td>' +
+        '</tr></table>' +
+
+        '<table class="rpt-summary" style="margin-top:10px">' +
+            '<tr><td class="lbl" style="vertical-align:top">Menu</td>' +
+                '<td class="sep" style="vertical-align:top">:</td>' +
+                '<td>' + menuItems.join(', ') + '</td></tr>' +
+            '<tr><td class="lbl" style="vertical-align:top">Jumlah</td>' +
+                '<td class="sep" style="vertical-align:top">:</td>' +
+                '<td>' + summary + '</td></tr>' +
+        '</table>' +
+
+        '<div style="margin-top:14px;font-family:Arial,sans-serif;font-size:10pt">' +
+            '<b>Penerima :</b>' +
+            '<div class="rpt-recv-imgs">' + dImgs + '</div>' +
+        '</div>' +
+
+        '<div class="rpt-footer">Laporan dibuat: ' + timestamp + '</div>';
+}
+
+/* ================================================================
+   NAVIGASI
+   ================================================================ */
+function goBack(){
+    document.getElementById('formSection').style.display = 'block';
+    document.getElementById('reportSection').style.display = 'none';
+    window.scrollTo(0,0);
+}
+
+/* ================================================================
+   GOOGLE SHEETS BACKUP
+   ================================================================ */
+function saveToSheets(){
+    if(!APPS_SCRIPT_URL){ alert('URL Google Apps Script belum dikonfigurasi.'); return; }
+    var data = window._lastData;
+    if(!data){ alert('Tidak ada data.'); return; }
+
+    var btn = document.getElementById('btnSheets');
+    btn.textContent = 'Menyimpan...';
+    btn.disabled = true;
+
+    fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+    })
+    .then(function(){
+        alert('Data berhasil dikirim ke Google Sheets!');
+    })
+    .catch(function(err){
+        alert('Gagal menyimpan: ' + err.message);
+    })
+    .finally(function(){
+        btn.textContent = 'Simpan ke Sheets';
+        btn.disabled = false;
+    });
+}
+</script>
+</body>
+</html>
